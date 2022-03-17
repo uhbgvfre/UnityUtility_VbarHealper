@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Text;
 using UnityEngine;
 
@@ -5,7 +9,16 @@ namespace Vbar
 {
     public class VbarHealper : MonoBehaviour
     {
+        public int infoScanedTimes;
+        public string lastInfo;
+        public Action<string> onInfoScanned;
+
         private VbarAPI m_VbarAPI = new VbarAPI();
+        private Queue<string> infoBuffer = new Queue<string>(k_BufferSize);
+        private Task m_ScanTask;
+        private CancellationTokenSource m_ScanTaskHandle = new CancellationTokenSource();
+
+        private const int k_BufferSize = 8;
 
         private void OnEnable() => Open();
         private void OnDisable() => Close();
@@ -14,11 +27,22 @@ namespace Vbar
         {
             bool state = m_VbarAPI.OpenDevice();
             print("Open device -> " + (state ? "Succ" : "Fail"));
+
+            m_ScanTaskHandle = new CancellationTokenSource();
+            m_ScanTask = Task.Run(() =>
+            {
+                while (true)
+                {
+                    if (m_ScanTaskHandle.IsCancellationRequested) break;
+                    CheckScanResult();
+                }
+            }, m_ScanTaskHandle.Token);
         }
 
         public void Close()
         {
             m_VbarAPI.CloseDevice();
+            m_ScanTaskHandle.Cancel();
             print("Close device");
         }
 
@@ -33,18 +57,23 @@ namespace Vbar
             print("Set scan active -> " + isActive.ToString());
         }
 
-        private void Update()
-        {
-            TryScanCode();
-        }
-
-        private void TryScanCode()
+        private void CheckScanResult()
         {
             if (!m_VbarAPI.GetResultStr(out byte[] data, out int size)) return;
-            string msg = Encoding.UTF8.GetString(data, 0, size);
+            string info = Encoding.UTF8.GetString(data, 0, size);
 
-            if (string.IsNullOrWhiteSpace(msg)) return;
-            print("ScanResult: " + msg);
+            if (string.IsNullOrWhiteSpace(info)) return;
+
+            if (infoBuffer.Count >= k_BufferSize)
+            {
+                infoBuffer.Dequeue();
+            }
+
+            infoBuffer.Enqueue(info);
+            lastInfo = info;
+            onInfoScanned?.Invoke(info);
+            infoScanedTimes++;
+            print("ScanResult: " + info);
         }
     }
 }

@@ -114,6 +114,8 @@ namespace Vbar
         }
 
         // 解碼設置
+        // Heavy method, I call 50 times spend 10.01434s (0.2 s/call)
+        // 硬體運作方式：Reader只要掃到資訊，就會存在設備的BufferStrQueue中，呼叫此方法會回傳Dequeue的字串內容
         public bool GetResultStr(out byte[] result_buffer, out int result_size)
         {
             byte[] c_result = new byte[1024];

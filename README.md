@@ -11,7 +11,10 @@ Only implement USB communication with Vguang's sdk, if you need other tech proto
 
 ## Install
 1. Download `VbarHealper.unitypackage` and import to Unity.
-2. Drag VbarHealper prefab to scene.
+2. Drag VbarHealper prefab to scene. (or intergrate to your app container as singleton in your way)
 
 ## Guide
 - Enable/Disable component to open/close reader scan.
+- Access `VbarHealper.lastInfo` to get last barcode information.
+- Rigest action to `VbarHealper.onInfoScanned` to handle with last barcode information.
+- Observe `VbarHealper.infoScanedTimes` change(maybe use UniRX) to listen scaned event.
