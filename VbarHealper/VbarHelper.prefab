@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5203653463375295891}
   - component: {fileID: 3698950472244527883}
   m_Layer: 0
-  m_Name: VbarHealper
+  m_Name: VbarHelper
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

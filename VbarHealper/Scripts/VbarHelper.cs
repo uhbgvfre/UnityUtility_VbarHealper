@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Vbar
 {
-    public class VbarHealper : MonoBehaviour
+    public class VbarHelper : MonoBehaviour
     {
         public int infoScanedTimes;
         public string lastInfo;
